@@ -20,7 +20,7 @@ impl TestApp {
             self.socket_addr.ip(),
             self.socket_addr.port()
         );
-        if path.starts_with("/") {
+        if path.starts_with('/') {
             format!("{}{}", address, path)
         } else {
             format!("{}/{}", address, path)

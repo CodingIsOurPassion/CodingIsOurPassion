@@ -16,6 +16,7 @@ use utoipa::OpenApi;
 use utoipauto::utoipauto;
 use uuid::Uuid;
 
+#[derive(Default)]
 pub struct Application {}
 
 #[utoipauto]

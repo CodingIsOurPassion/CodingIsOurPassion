@@ -10,5 +10,5 @@ pub mod status;
 pub struct ApiDoc;
 
 pub fn router() -> Router {
-    return Router::new().route("/status", get(crate::routes::v1::status::status));
+    Router::new().route("/status", get(crate::routes::v1::status::status))
 }
