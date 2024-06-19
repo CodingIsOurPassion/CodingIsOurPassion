@@ -1,3 +1,5 @@
+#![deny(clippy::all)]
+#![warn(clippy::pedantic)]
 use lakewatch::{
     startup::Application,
     telemetry::{get_subscriber, init_subscriber},
