@@ -1,7 +1,6 @@
 use axum::{
     body::Body,
     http::{HeaderName, HeaderValue, Request},
-    routing::get,
     Router,
 };
 use tower::ServiceBuilder;
@@ -11,9 +10,16 @@ use tower_http::{
     trace::{DefaultOnResponse, TraceLayer},
 };
 use tracing::{Level, Span};
+use utoipa::OpenApi;
+use utoipauto::utoipauto;
 use uuid::Uuid;
 
 pub struct Application {}
+
+#[utoipauto]
+#[derive(OpenApi)]
+#[openapi(tags((name = "LakeWatchAPI", description = "API for the LakeWatch app, serving data about Canyon Lake from various sources.")))]
+struct ApiDoc;
 
 impl Application {
     pub fn new() -> Application {
@@ -34,7 +40,11 @@ impl Application {
             .map_err(|err| format!("Failed to get socket address, error: {err}"))?;
         let header_x_request_id = HeaderName::from_static("x-request-id");
         let router = Router::new()
-            .route("/", get(|| async { "API Online" }))
+            .nest("/v1", crate::routes::v1::router())
+            .merge(
+                utoipa_swagger_ui::SwaggerUi::new("/swagger-ui")
+                    .url("/api-docs/openapi.json", ApiDoc::openapi()),
+            )
             .layer(
                 ServiceBuilder::new()
                     .layer(SetRequestHeaderLayer::overriding(

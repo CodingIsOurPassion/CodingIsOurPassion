@@ -15,11 +15,15 @@ impl TestApp {
     }
 
     pub fn url(&self, path: &str) -> String {
-        return format!(
-            "http://{}:{}/{}",
+        let address = format!(
+            "http://{}:{}",
             self.socket_addr.ip(),
-            self.socket_addr.port(),
-            path
+            self.socket_addr.port()
         );
+        if path.starts_with("/") {
+            format!("{}{}", address, path)
+        } else {
+            format!("{}/{}", address, path)
+        }
     }
 }

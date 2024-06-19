@@ -29,6 +29,9 @@ tracing-bunyan-formatter = "0.3.9"
 serde = { version = "1.0.203", features = ["derive"] }
 tokio = { version = "1.38.0", features = ["full"] }
 secrecy = { version = "0.8.0", features = ["serde"] }
+utoipa-swagger-ui = { version = "7.1.0", features = ["axum"]}
+utoipauto = "0.1.11"
+utoipa = "4.2.3"
 
 [dev-dependencies]
 reqwest = "0.12.5"
