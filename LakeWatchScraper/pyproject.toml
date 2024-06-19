@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "lakewatchscraper"
+version = "0.1.0"
+description = "Scrape data for use in the LakeWatchAPI"
+authors = ["Price Hiller <price@orion-technologies.io>"]
+license = "AGPLv3"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+pydantic = "^2.7.4"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+scraper = "lakewatchscraper.__main__:main"
