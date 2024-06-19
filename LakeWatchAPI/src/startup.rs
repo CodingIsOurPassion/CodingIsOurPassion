@@ -1,6 +1,8 @@
 use axum::{
     body::Body,
     http::{HeaderName, HeaderValue, Request},
+    response::Redirect,
+    routing::get,
     Router,
 };
 use tower::ServiceBuilder;
@@ -41,6 +43,7 @@ impl Application {
         let header_x_request_id = HeaderName::from_static("x-request-id");
         let router = Router::new()
             .nest("/v1", crate::routes::v1::router())
+            .route("/", get(|| async { Redirect::permanent("/swagger-ui") }))
             .merge(
                 utoipa_swagger_ui::SwaggerUi::new("/swagger-ui")
                     .url("/api-docs/openapi.json", ApiDoc::openapi()),
