@@ -3,6 +3,7 @@ name = "lakewatch"
 version = "0.1.0"
 edition = "2021"
 license = "AGPLv3"
+authors = [ "Price Hiller <price@orion-technologies.io>" ]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -29,7 +30,7 @@ tracing-bunyan-formatter = "0.3.9"
 serde = { version = "1.0.203", features = ["derive"] }
 tokio = { version = "1.38.0", features = ["full"] }
 secrecy = { version = "0.8.0", features = ["serde"] }
-utoipa-swagger-ui = { version = "7.1.0", features = ["axum"]}
+utoipa-swagger-ui = { version = "7.1.0", features = ["axum", "vendored"]}
 utoipauto = "0.1.11"
 utoipa = "4.2.3"
 
