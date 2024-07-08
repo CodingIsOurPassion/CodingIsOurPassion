@@ -1,0 +1,168 @@
+@startuml
+skinparam classAttributeIconSize 0
+enum BoatRampStatus<Model> {
+    OPEN
+    CLOSED
+    UNKNOWN
+}
+
+skinparam classAttributeIconSize 0
+class BoatRampData<Model> {
+    -name: String
+    -status: BoatRampStatus
+    -openTimes: ZonedDateTime
+    -address: String
+    -operator: String
+    -lastUpdated: ZonedDateTime
+    -imageUrl: String
+
+    +<<constructor>> BoatRampData(name: String, status: BoatRampStatus, openTimes, ZonedDateTime, address: String, operator: String, lastUpdated: ZonedDateTime, imageUrl: String)
+    +_loadBoatRampData(): ArrayList<BoatRampData>
+    +saveBoatRampData()
+    +toString(): String
+    +getName(): String
+    +setName(newName: String)
+    +getStatus(): BoatRampStatus
+    +setStatus(newStatus: BoatRampStatus)
+    +getOpenTimes(): ZonedDateTime
+    +setOpenTimes(time: ZonedDateTime)
+    +getAddress(): String
+    +setAddress(newAddress: String)
+    +getOperator(): String
+    +setOperator(newOperator: String)
+    +getLastUpdated(): ZonedDateTime
+    +setLastUpdated(newLastUpdatedTime: ZonedDateTime)
+    +getImageUrl(): String
+    +setImageUrl(newImageUrl: String)
+}
+
+skinparam classAttributeIconSize 0
+class BoatRampActivity<Controller> {
+    #onCreate(savedInstanceState: Bundle)
+}
+
+skinparam classAttributeIconSize 0
+class MainRampMenuActivity<Controller> {
+    -allRampData: ArrayList<BoatRampData>
+
+    #onCreate(savedInstanceState: Bundle)
+    -launchBoatRampActivity()
+}
+
+skinparam classAttributeIconSize 0
+class WaterLevelData<Model> {
+    -date: Date
+    -waterLevel: double
+    -surfaceArea: double
+    -reservoirStorage: int
+    -conservationStorage: int
+    -percentFull: double
+    -conservationCapacity: int
+    -deadPoolCapacity: int
+
+    +<<constructor>>WaterLevelData(date: Date, level: double, isCurrent: boolean)
+    +_loadWaterLevelData(): ArrayList<WaterLevelData>
+    +saveWaterLevelData()
+    +toString(): String
+    +getDate(): String
+    +setDate(newDate: Date)
+    +getWaterLevel(): double
+    +setWaterLevel(newLevel: double)
+    +getSurfaceArea(): double
+    +setSurfaceArea(newSurfaceArea: double)
+    +getReservoirStorage(): int
+    +setReservoirStorage(newReservoirStorage: int)
+    +getConservationStorage(): int
+    +setConservationStorage(newConservationStorage: int)
+    +getPercentFull(): double
+    +setPercentFull(newPercentFull: double)
+    +getConservationCapacity(): int
+    +setConservationCapacity(newConservationCapacity: int)
+    +getDeadPoolCapacity(): int
+    +setDeadPoolCapacity(newDeadPoolCapacity: int)
+}
+
+skinparam classAttributeIconSize 0
+class WaterLevelActivity<Controller> {
+    #onCreate(savedInstanceState: Bundle)
+}
+
+skinparam classAttributeIconSize 0
+class MainMenuActivity<Controller> {
+    #onCreate(savedInstanceState: Bundle)
+    -launchMainRampMenuActivity()
+    -launchWaterLevelActivity()
+    -launchSettingsActivity()
+    -launchWeatherActivity()
+}
+
+skinparam classAttributeIconSize 0
+class SettingsActivity<Controller> {
+    #onCreate(savedInstanceState: Bundle)
+    -toggleLightMode()
+    -forceDataFetch()
+    -clearCache()
+}
+
+skinparam classAttributeIconSize 0
+class SettingsData<Model> {
+    -isLightModeEnabled: boolean
+
+    +<<contructor>>SettingsData(isLightModeEnabled: boolean)
+    +_loadSettingsData(): SettingsData
+    +saveSettingsData()
+    +toString(): String
+    +getLightModeState(): boolean
+    +setLightModeState(lightModeEnabled: boolean)
+}
+
+skinparam classAttributeIconSize 0
+class WeatherActivity<Controller> {
+    #onCreate(savedInstanceState: Bundle)
+}
+
+skinparam classAttributeIconSize 0
+class WeatherData<Model> {
+    -weatherDescriptor: String
+    -tempHigh: int
+    -tempLow: int
+    -windSpeed: int
+    -gustSpeed: int
+    -windDirection: String
+    -chancePrecipitation: int
+    -amountPrecipitation: double
+
+    +<<constructor>> WeatherData(weatherDescriptor: String, tempHigh: int, tempLow: int, windSpeed: int, gustSpeed: int, windDirection: String, chancePrecipitation: int, amountPrecipitation: double):
+    +_loadWeatherData(): WeatherData
+    +saveWeatherData()
+    +toString(): String
+    +getWeatherDescriptor(): String
+    +setWeatherDescriptor(weatherDescriptor: String)
+    +getTempHigh(): int
+    +setTempHigh(tempHigh: int)
+    +getTempLow(): int
+    +setTempLow(tempLow: int)
+    +getWindSpeed(): int
+    +setWindSpeed(windSpeed: int)
+    +getGustSpeed(): int
+    +setGustSpeed(gustSpeed: int)
+    +getWindDirection(): String
+    +setWindDirection(windDirection: String):
+    +getChancePrecipitation(): int
+    +setChancePrecipitation(chancePrecipitation: int)
+    +getAmountPrecipitation(): double
+    +setAmountPrecipitation(amountPrecipitation: double)
+}
+
+SettingsActivity ..> SettingsData
+SettingsActivity <.u. MainMenuActivity
+WeatherActivity ..> WeatherData
+WeatherActivity <.u. MainMenuActivity
+BoatRampActivity ..> BoatRampData
+MainRampMenuActivity *-- BoatRampData
+MainRampMenuActivity <.u. MainMenuActivity
+MainRampMenuActivity ..> BoatRampActivity
+WaterLevelActivity ..> WaterLevelData
+WaterLevelActivity <.u. MainMenuActivity
+BoatRampData *-- BoatRampStatus
+@enduml

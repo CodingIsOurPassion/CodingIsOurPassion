@@ -1,0 +1,145 @@
+* Lake Watch Architecture
+
+** Classes
+
+*** MainMenuActivity
+
+- Responsible for launching all other activities (the following):
+  - ~BoatRampMenuActivity~
+  - ~WeatherActivity~
+  - ~SettingsActivity~
+  - ~WaterLevelActivity~
+- Primary entrypoint for the application
+
+*** SettingsActivity
+- Responsible for the following:
+  - Handling dark mode and light mode toggling
+  - Forcing a data fetch
+  - Forcefully clearing the cache
+- Data fetching
+  - Our app will be talking to external data sources beyond local files on the system
+  - Due to this external data sourcing, the app may end up out of synchronization with those sources and thus we want to allow a given user to force an update if it ever becomes necessary. It's a escape hatch of sorts.
+- Cache clearing
+  - To avoid overloading those external data sources we're going to maintain a cache on the local device that will be preferenced for data fetching under certain criteria (such as difference in dates, a generated hash for a given data set, and potentially more).
+  - As such, it would be useful if anything ever ends up in a bad state to forcefully clear out this cache to allow data to be reindexed.
+*** Settings Data
+
+- Handle the logic behind the scenes for the ~SettingsActivity~ class. It's responsible for actually driving the data behind the view, like the data fetching and caching.
+- Likewise, it's also responsible for setting the global lightmode and darkmode for the entire application.
+
+*** WeatherActivity
+
+- Controls general weather information local to Canyon Lake. That information includes:
+  - High and Low temperature
+  - Wind speed and direction
+  - Precipitation chances along with the amount of said precipitation
+  - A short weather description
+- This view will also include a link to [[https://weather.gov]] for Canyon Lake which may include further information.
+
+*** WeatherData
+
+- This is the Model for the ~WeatherActivity~ view.
+- Responsible for fetching the local weather conditions at Canyon Lake.
+
+*** MainRampMenuActivity
+
+- Responsible for displaying a vertically scrollable view of all simple boat ramp details, those details include:
+  - The name of the ramp
+  - The status of the ramp, is it open, closed, or is its status unknown?
+    - Color coding based on the status
+- Also responsible for launching each individual ramp subview with more details on a given ramp when the ramp is tapped/clicked on
+- Contains a list of ~BoatRampData~ objects to pull said data from
+
+*** BoatRampActivity
+- Responsible for actually displaying the long information on a given boat ramp, that information includes:
+  - The boat ramp name, which may be different from the address
+  - The boat ramp status, open/closed/unknown
+  - The boat ramp opening times (the officially stated times when the ramp is open if its status shows it as open)
+  - The address, that has an included copy button to make it easy to paste into a GPS app
+  - The operator of the ramp, who is actually in charge of it
+  - The last time the information on the ramp was updated
+    - Useful for determining if the ramp status may be incorrect
+  - An image of the boat ramp
+
+*** BoatRampData
+- The Model class responsible for handling data interactions for both the ~MainRampMenuActivity~ and the ~BoatRampActivity~
+- It pulls data from various data sources that are all kludged together or, unfortunately, sometimes /manually/ gathered for display in the view classes
+- The ~BoatRampData~ is intended to be used as a collection, thus the ~loadBoatRampData~ returns an ~ArrayList~ of the data so the ~MainRampMenuActivity~ can easily use it
+
+**** BoatRampStatus
+- Contained within the ~BoatRampData~ class
+- It's an Enumeration for determining the various states of the ramp
+- Since a given ramp can have more than two states (open/closed/unknown), it had to be an Enumeration
+
+*** WaterLevelActivity
+- Responsible for displaying information on Canyon Lake's current water level and other data; furthermore, it will show historical water level and other data as well as showing a water level graph for the past three years
+- Its information includes:
+  - How full the lake is as a percentage and in feet
+  - The surface area covered by the lake in acres of the total lake
+  - How many feet below (or above) the full pool the current water level is
+  - The last time the information was updated
+
+*** WaterLevelData
+
+- Contains the following information:
+  - ~date~: the date for the given water data record
+  - ~waterLevel~: the level of the water for the given record as feet above the vertical datum
+  - ~surfaceArea~: the acres covered by the lake surface
+  - ~reservoirStorage~: actual storage at measured lake elevation
+  - ~conservationStorage~: reservoir storage - dead pool capacity (note: conservation storage is capped at conservation capacity)
+  - ~percentFull~: 100 * conservation storage/conservation capacity
+  - ~conservationCapacity~: storage at conservation pool elevation - dead pool capacity
+  - ~deadPoolCapacity~: storage at dead pool elevation
+- ~WaterLevelData~ is intended to be used as a collection of objects because each object represents a single date's information, as such the ~loadWaterLevelData~ method returns an ~ArrayList~ of ~WaterLevelData~ with the newest data being the first object in the list.
+- Some of the data may not be used, but it's /much/ faster and easier to load the full CSV without cutting out some columns of data, thus that's what we do to populate it
+
+** Data Files
+
+*** ~weather-gov-forcast.json~
+
+This file was pulled from [[https://api.weather.gov/gridpoints/EWX/136,74/forecast]].
+
+It contains all the relevant weather data for Canyon Lake. And yes, before you ask, EWX, 136,74 is the correct station for Canyon Lake.
+
+We intend to hit that API as needed for the data, but will include a preloaded set as well in case something goes wrong with that endpoint.
+
+*** ~waterdata.csv~
+
+Please see the file, the entire top of that CSV includes comments as to its exact functionality and numbers as provided to us from following URL: [[https://www.waterdatafortexas.org/reservoirs/individual/canyon.csv]].
+
+To summarize the data is in the following format:
+| date       | water_level | surface_area | reservoir_storage | conservation_storage | percent_full | conservation_capacity | dead_pool_capacity |
+|------------|-------------|--------------|-------------------|----------------------|--------------|-----------------------|--------------------|
+| 2024-06-19 | 885.41      | 5689.16      | 215710            | 215639               | 56.9         | 378781                | 71                 |
+
+All data is using feet or acres as relevant.
+
+*** ~Canyon-Lake-WaterData-Graph.png~
+
+That PNG is an example of the actual graph we intend to show in the app, it will serve as a fallback in case data can't be pulled for any reason such that the user isn't left with nothing on screen.
+
+It contains the water level per month for the last three years plotted out based on the data in the ~waterdata.csv~ file.
+
+*** BOAT RAMP DATA FROM HELL
+
+We are breaking the boat ramp data down into its own section because of how ad-hoc the data consistency and availability is.
+
+Some operators, like Comal County, are angels and have the data in a simple JSON serving API that we can hit and get up to date statuses for.
+
+Another operator who at least posts data, is the United States Army Core of Engineers. It's great that they do post data, but! They post their data in a manually updated HTML page — so we get to go through the /fun/, /_fun_/ experience of doing data scrapping against those pages to get up to date information.
+
+The worst operators, like WORD (yes, that's an operator), told me (Price Hiller) to effectively pound sand after waiting on hold for the better part of two hours. So for the WORD ramps, and others like them the data status is in god's hands.
+
+For the record, we only have up to date data we can pull on the ramps for approximately 14 ramps give or take a few. There's 23 total. A lot of the data will be manually entered for the purposes of this section based on news articles and hearsay.
+
+Do take note that the ~Canyon-Lake-USACE-...~ directories are included for the relevant HTML files and are not going to be discussed below as during our scrape those directories won't exist, our scraper will see the full webpage.
+
+****  ~Comal-County-Ramp-Info.json~
+Comal County posts their ramp information off of their GIS system for the public to use. Under the ~features~ key within the JSON, they have per ramp statuses which we will be leveraging for their ramp information.
+
+**** ~Canyon-Lake-USACE-Operators.html~
+
+This file includes *all* of the operators of every Canyon Lake boat ramp. This makes it easy on us to assign names to ramps, and determine who actually owns the ramps.
+
+**** ~Canyon-Lake-USACE.html~
+This file has all the United States Army Corps of Engineer's data on their ramps. That data has the names of the ramps and whether they are closed or not and (sometimes) operating hours.
